@@ -50,12 +50,13 @@
             const linksList = document.getElementById('linksList');
             linksList.innerHTML = ''; // Limpa a lista de links antes de exibir novos
 
+            // Referência para a coleção youtubeLinks
             const query = db.collection("youtubeLinks").orderBy("data", "desc");
 
             // Escutando as mudanças em tempo real na coleção
             query.onSnapshot((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
-                    const data = doc.data();
+                    const data = doc.data(); // Dados do documento
                     const listItem = document.createElement('li');
                     listItem.innerHTML = `
                         <strong>${data.titulo}</strong><br>
@@ -123,4 +124,3 @@
     <ul id="linksList"></ul>
 </body>
 </html>
-
