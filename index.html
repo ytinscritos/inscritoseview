@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inserir Links do YouTube</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 </head>
 <body>
     <h1>Insira seu link do YouTube</h1>
     <form id="linkForm">
         <label for="youtubeLink">Link do YouTube:</label>
-        <input type="text" id="youtubeLink" name="youtubeLink" placeholder="Cole seu link aqui" required>
+        <input type="text" id="youtubeLink" name="youtubeLink" placeholder="Cole seu link aqui" required><br>
+
+        <label for="videoTitle">Título do Vídeo:</label>
+        <input type="text" id="videoTitle" name="videoTitle" placeholder="Título do vídeo" required><br>
+
+        <label for="minutes">Tempo estimado (em minutos):</label>
+        <input type="number" id="minutes" name="minutes" placeholder="Minutos" required><br>
+
         <button type="submit">Adicionar</button>
     </form>
 
@@ -17,22 +26,60 @@
     <ul id="linksList"></ul>
 
     <script>
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY",
+            authDomain: "SEU_AUTH_DOMAIN",
+            projectId: "SEU_PROJECT_ID",
+            storageBucket: "SEU_STORAGE_BUCKET",
+            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+            appId: "SEU_APP_ID"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
         const form = document.getElementById('linkForm');
         const linkInput = document.getElementById('youtubeLink');
+        const titleInput = document.getElementById('videoTitle');
+        const minutesInput = document.getElementById('minutes');
         const linksList = document.getElementById('linksList');
 
-        form.addEventListener('submit', (event) => {
+        form.addEventListener('submit', async (event) => {
             event.preventDefault();
+
             const link = linkInput.value;
+            const title = titleInput.value;
+            const minutes = parseInt(minutesInput.value);
 
-            // Adiciona o link à lista de links na página
-            const listItem = document.createElement('li');
-            listItem.textContent = link;
-            linksList.appendChild(listItem);
+            // Salva os dados no Firestore
+            await db.collection('youtubeLinks').add({
+                url: link,
+                titulo: title,
+                minutos: minutes,
+                data: firebase.firestore.FieldValue.serverTimestamp()
+            });
 
-            // Limpa o campo de entrada
+            // Limpa os campos do formulário
             linkInput.value = '';
+            titleInput.value = '';
+            minutesInput.value = '';
+        });
+
+        // Recupera os links do Firestore e exibe
+        db.collection('youtubeLinks').orderBy('data', 'desc').onSnapshot((querySnapshot) => {
+            linksList.innerHTML = '';  // Limpa a lista existente
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <strong>${data.titulo}</strong><br>
+                    <a href="${data.url}" target="_blank">${data.url}</a><br>
+                    <strong>Tempo estimado:</strong> ${data.minutos} minutos<br>
+                    <em>Adicionado em: ${data.data.toDate().toLocaleString()}</em><br><br>
+                `;
+                linksList.appendChild(listItem);
+            });
         });
     </script>
 </body>
 </html>
+
