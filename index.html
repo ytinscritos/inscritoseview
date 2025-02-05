@@ -6,11 +6,10 @@
     <title>Inserir Links do YouTube</title>
 
     <!-- Importando as funções necessárias do Firebase -->
-    <script type="module">
-        // Importa a função para inicializar o Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
+    <script type="module">
         // Sua configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBQWcrRHJp8WkqcJYKOLwdccG1h-hympfw",
@@ -23,8 +22,8 @@
         };
 
         // Inicializando o Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // Função para adicionar um novo link no Firestore
         async function addLinkToFirestore(url, titulo, minutos) {
@@ -109,3 +108,4 @@
     <ul id="linksList"></ul>
 </body>
 </html>
+
