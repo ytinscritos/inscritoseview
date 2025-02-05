@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-    <script type="module">
+    <script type="text/javascript">
         // Sua configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBQWcrRHJp8WkqcJYKOLwdccG1h-hympfw",
@@ -26,26 +26,27 @@
         const db = firebase.firestore();
 
         // Função para adicionar um novo link no Firestore
-        async function addLinkToFirestore(url, titulo, minutos) {
-            try {
-                const docRef = await addDoc(collection(db, "youtubeLinks"), {
-                    url: url,
-                    titulo: titulo,
-                    minutos: minutos,
-                    data: new Date()
-                });
+        function addLinkToFirestore(url, titulo, minutos) {
+            db.collection("youtubeLinks").add({
+                url: url,
+                titulo: titulo,
+                minutos: minutos,
+                data: new Date() // Adiciona a data de inserção
+            })
+            .then(function(docRef) {
                 console.log("Documento escrito com ID: ", docRef.id);
-            } catch (e) {
-                console.error("Erro ao adicionar documento: ", e);
-            }
+            })
+            .catch(function(error) {
+                console.error("Erro ao adicionar documento: ", error);
+            });
         }
 
         // Função para exibir os links na página
         function displayLinks() {
             const linksList = document.getElementById('linksList');
-            const q = query(collection(db, "youtubeLinks"), orderBy("data", "desc"));
+            const query = db.collection("youtubeLinks").orderBy("data", "desc");
 
-            onSnapshot(q, (querySnapshot) => {
+            query.onSnapshot((querySnapshot) => {
                 linksList.innerHTML = ''; // Limpa a lista de links
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
@@ -54,7 +55,7 @@
                         <strong>${data.titulo}</strong><br>
                         <a href="${data.url}" target="_blank">${data.url}</a><br>
                         <strong>Tempo estimado:</strong> ${data.minutos} minutos<br>
-                        <em>Adicionado em: ${data.data.toLocaleString()}</em><br><br>
+                        <em>Adicionado em: ${data.data.toDate().toLocaleString()}</em><br><br>
                     `;
                     linksList.appendChild(listItem);
                 });
@@ -108,4 +109,3 @@
     <ul id="linksList"></ul>
 </body>
 </html>
-
