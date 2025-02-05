@@ -4,70 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assistir Vídeos</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-</head>
-<body>
-    <h1>Vídeos do YouTube</h1>
-    <div id="videosContainer"></div>
 
-    <script>
+    <!-- Importando as funções necessárias do Firebase -->
+    <script type="module">
+        // Importa a função para inicializar o Firebase e acessar o Firestore
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // Sua configuração do Firebase
         const firebaseConfig = {
-            apiKey: "SUA_API_KEY",
-            authDomain: "SEU_AUTH_DOMAIN",
-            projectId: "SEU_PROJECT_ID",
-            storageBucket: "SEU_STORAGE_BUCKET",
-            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-            appId: "SEU_APP_ID"
+            apiKey: "AIzaSyBQWcrRHJp8WkqcJYKOLwdccG1h-hympfw",
+            authDomain: "ytinscritos-b8687.firebaseapp.com",
+            projectId: "ytinscritos-b8687",
+            storageBucket: "ytinscritos-b8687.firebasestorage.app",
+            messagingSenderId: "1020519599238",
+            appId: "1:1020519599238:web:8d04c61e7c50bc5055d507",
+            measurementId: "G-C1L10R7BL1"
         };
 
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const videosContainer = document.getElementById('videosContainer');
+        // Inicializando o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        // Pega os links e dados dos vídeos
-        db.collection('youtubeLinks').orderBy('data', 'desc').onSnapshot((querySnapshot) => {
-            videosContainer.innerHTML = '';  // Limpa o container
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const iframe = document.createElement('iframe');
-                iframe.width = '560';
-                iframe.height = '315';
-                iframe.src = `https://www.youtube.com/embed/${extractVideoId(data.url)}`;
-                iframe.frameBorder = '0';
-                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                iframe.allowFullscreen = true;
+        // Função para exibir os vídeos
+        function displayLinks() {
+            const videosContainer = document.getElementById('videosContainer');
+            const q = query(collection(db, "youtubeLinks"), orderBy("data", "desc"));
 
-                const videoTitle = document.createElement('h3');
-                videoTitle.textContent = data.titulo;
+            // Escutando mudanças no Firestore
+            onSnapshot(q, (querySnapshot) => {
+                videosContainer.innerHTML = ''; // Limpa o container de vídeos
 
-                const videoTime = document.createElement('p');
-                videoTime.innerHTML = `<strong>Tempo estimado:</strong> ${data.minutos} minutos`;
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const videoId = extractVideoId(data.url); // Função para extrair o ID do vídeo
 
-                const videoData = document.createElement('p');
-                videoData.innerHTML = `<em>Adicionado em: ${data.data.toDate().toLocaleString()}</em>`;
+                    // Cria o iframe com o player do YouTube
+                    const iframe = document.createElement('iframe');
+                    iframe.width = '560';
+                    iframe.height = '315';
+                    iframe.src = `https://www.youtube.com/embed/${videoId}`;
+                    iframe.frameBorder = '0';
+                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                    iframe.allowFullscreen = true;
 
-                const videoLink = document.createElement('a');
-                videoLink.href = data.url;
-                videoLink.target = '_blank';
-                videoLink.textContent = 'Assista no YouTube';
+                    // Cria a descrição do vídeo
+                    const videoTitle = document.createElement('h3');
+                    videoTitle.textContent = data.titulo;
 
-                const videoItem = document.createElement('div');
-                videoItem.appendChild(videoTitle);
-                videoItem.appendChild(iframe);
-                videoItem.appendChild(videoTime);
-                videoItem.appendChild(videoData);
-                videoItem.appendChild(videoLink);
-                videosContainer.appendChild(videoItem);
+                    const videoTime = document.createElement('p');
+                    videoTime.innerHTML = `<strong>Tempo estimado:</strong> ${data.minutos} minutos`;
+
+                    const videoData = document.createElement('p');
+                    videoData.innerHTML = `<em>Adicionado em: ${data.data.toDate().toLocaleString()}</em>`;
+
+                    const videoLink = document.createElement('a');
+                    videoLink.href = data.url;
+                    videoLink.target = '_blank';
+                    videoLink.textContent = 'Assista no YouTube';
+
+                    // Monta o item de vídeo
+                    const videoItem = document.createElement('div');
+                    videoItem.appendChild(videoTitle);
+                    videoItem.appendChild(iframe);
+                    videoItem.appendChild(videoTime);
+                    videoItem.appendChild(videoData);
+                    videoItem.appendChild(videoLink);
+                    videosContainer.appendChild(videoItem);
+                });
             });
-        });
+        }
 
-        // Função para extrair o ID do vídeo
+        // Função para extrair o ID do vídeo do YouTube
         function extractVideoId(url) {
             const regex = /(?:https?:\/\/(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+|(?:v|e(?:mbed)?)\/?([^&?]*)))|youtu\.be\/([^&?]*))/;
             const match = url.match(regex);
             return match ? match[1] : null;
         }
+
+        // Exibe os links ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            displayLinks();
+        });
     </script>
+</head>
+<body>
+    <h1>Vídeos do YouTube</h1>
+    <div id="videosContainer"></div>
 </body>
 </html>
