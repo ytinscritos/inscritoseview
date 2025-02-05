@@ -4,8 +4,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inserir Links do YouTube</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+
+    <!-- Importando as funções necessárias do Firebase -->
+    <script type="module">
+        // Importa a função para inicializar o Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // Sua configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQWcrRHJp8WkqcJYKOLwdccG1h-hympfw",
+            authDomain: "ytinscritos-b8687.firebaseapp.com",
+            projectId: "ytinscritos-b8687",
+            storageBucket: "ytinscritos-b8687.firebasestorage.app",
+            messagingSenderId: "1020519599238",
+            appId: "1:1020519599238:web:8d04c61e7c50bc5055d507",
+            measurementId: "G-C1L10R7BL1"
+        };
+
+        // Inicializando o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Função para adicionar um novo link no Firestore
+        async function addLinkToFirestore(url, titulo, minutos) {
+            try {
+                const docRef = await addDoc(collection(db, "youtubeLinks"), {
+                    url: url,
+                    titulo: titulo,
+                    minutos: minutos,
+                    data: new Date()
+                });
+                console.log("Documento escrito com ID: ", docRef.id);
+            } catch (e) {
+                console.error("Erro ao adicionar documento: ", e);
+            }
+        }
+
+        // Função para exibir os links na página
+        function displayLinks() {
+            const linksList = document.getElementById('linksList');
+            const q = query(collection(db, "youtubeLinks"), orderBy("data", "desc"));
+
+            onSnapshot(q, (querySnapshot) => {
+                linksList.innerHTML = ''; // Limpa a lista de links
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <strong>${data.titulo}</strong><br>
+                        <a href="${data.url}" target="_blank">${data.url}</a><br>
+                        <strong>Tempo estimado:</strong> ${data.minutos} minutos<br>
+                        <em>Adicionado em: ${data.data.toLocaleString()}</em><br><br>
+                    `;
+                    linksList.appendChild(listItem);
+                });
+            });
+        }
+
+        // Função para tratar o envio do formulário
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('linkForm');
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const linkInput = document.getElementById('youtubeLink');
+                const titleInput = document.getElementById('videoTitle');
+                const minutesInput = document.getElementById('minutes');
+
+                const link = linkInput.value;
+                const title = titleInput.value;
+                const minutes = parseInt(minutesInput.value);
+
+                // Adiciona o link ao Firestore
+                addLinkToFirestore(link, title, minutes);
+
+                // Limpa os campos após o envio
+                linkInput.value = '';
+                titleInput.value = '';
+                minutesInput.value = '';
+            });
+
+            // Exibe os links ao carregar a página
+            displayLinks();
+        });
+    </script>
 </head>
 <body>
     <h1>Insira seu link do YouTube</h1>
@@ -24,61 +107,5 @@
 
     <h2>Links Inseridos:</h2>
     <ul id="linksList"></ul>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY",
-            authDomain: "SEU_AUTH_DOMAIN",
-            projectId: "SEU_PROJECT_ID",
-            storageBucket: "SEU_STORAGE_BUCKET",
-            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-            appId: "SEU_APP_ID"
-        };
-
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const form = document.getElementById('linkForm');
-        const linkInput = document.getElementById('youtubeLink');
-        const titleInput = document.getElementById('videoTitle');
-        const minutesInput = document.getElementById('minutes');
-        const linksList = document.getElementById('linksList');
-
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const link = linkInput.value;
-            const title = titleInput.value;
-            const minutes = parseInt(minutesInput.value);
-
-            // Salva os dados no Firestore
-            await db.collection('youtubeLinks').add({
-                url: link,
-                titulo: title,
-                minutos: minutes,
-                data: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            // Limpa os campos do formulário
-            linkInput.value = '';
-            titleInput.value = '';
-            minutesInput.value = '';
-        });
-
-        // Recupera os links do Firestore e exibe
-        db.collection('youtubeLinks').orderBy('data', 'desc').onSnapshot((querySnapshot) => {
-            linksList.innerHTML = '';  // Limpa a lista existente
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <strong>${data.titulo}</strong><br>
-                    <a href="${data.url}" target="_blank">${data.url}</a><br>
-                    <strong>Tempo estimado:</strong> ${data.minutos} minutos<br>
-                    <em>Adicionado em: ${data.data.toDate().toLocaleString()}</em><br><br>
-                `;
-                linksList.appendChild(listItem);
-            });
-        });
-    </script>
 </body>
 </html>
