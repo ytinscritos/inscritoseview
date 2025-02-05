@@ -31,23 +31,29 @@
                 url: url,
                 titulo: titulo,
                 minutos: minutos,
-                data: new Date() // Adiciona a data de inserção
+                data: firebase.firestore.FieldValue.serverTimestamp() // Usa timestamp do servidor
             })
             .then(function(docRef) {
                 console.log("Documento escrito com ID: ", docRef.id);
+                alert("Link adicionado com sucesso!");
+                // Após adicionar, exibe os links novamente
+                displayLinks();
             })
             .catch(function(error) {
                 console.error("Erro ao adicionar documento: ", error);
+                alert("Erro ao adicionar link. Tente novamente.");
             });
         }
 
         // Função para exibir os links na página
         function displayLinks() {
             const linksList = document.getElementById('linksList');
+            linksList.innerHTML = ''; // Limpa a lista de links antes de exibir novos
+
             const query = db.collection("youtubeLinks").orderBy("data", "desc");
 
+            // Escutando as mudanças em tempo real na coleção
             query.onSnapshot((querySnapshot) => {
-                linksList.innerHTML = ''; // Limpa a lista de links
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     const listItem = document.createElement('li');
@@ -59,6 +65,8 @@
                     `;
                     linksList.appendChild(listItem);
                 });
+            }, (error) => {
+                console.error("Erro ao ouvir mudanças: ", error);
             });
         }
 
@@ -75,6 +83,12 @@
                 const link = linkInput.value;
                 const title = titleInput.value;
                 const minutes = parseInt(minutesInput.value);
+
+                // Validação simples antes de adicionar
+                if (!link || !title || isNaN(minutes)) {
+                    alert("Por favor, preencha todos os campos corretamente!");
+                    return;
+                }
 
                 // Adiciona o link ao Firestore
                 addLinkToFirestore(link, title, minutes);
@@ -109,3 +123,4 @@
     <ul id="linksList"></ul>
 </body>
 </html>
+
