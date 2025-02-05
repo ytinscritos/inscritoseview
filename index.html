@@ -1,46 +1,38 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Links do YouTube</title>
+    <title>Inserir Links do YouTube</title>
 </head>
 <body>
-    <h2>Adicionar Link do YouTube</h2>
-    <input type="text" id="youtubeLink" placeholder="Cole o link aqui">
-    <button onclick="adicionarLink()">Adicionar</button>
+    <h1>Insira seu link do YouTube</h1>
+    <form id="linkForm">
+        <label for="youtubeLink">Link do YouTube:</label>
+        <input type="text" id="youtubeLink" name="youtubeLink" placeholder="Cole seu link aqui" required>
+        <button type="submit">Adicionar</button>
+    </form>
 
-    <h2>Links Salvos</h2>
-    <ul id="listaLinks"></ul>
+    <h2>Links Inseridos:</h2>
+    <ul id="linksList"></ul>
 
     <script>
-        async function carregarLinks() {
-            const resposta = await fetch('https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPOSITORIO/main/links.json');
-            const links = await resposta.json();
-            const lista = document.getElementById('listaLinks');
-            lista.innerHTML = links.map(link => `<li><a href="${link}" target="_blank">${link}</a></li>`).join('');
-        }
+        const form = document.getElementById('linkForm');
+        const linkInput = document.getElementById('youtubeLink');
+        const linksList = document.getElementById('linksList');
 
-        async function adicionarLink() {
-            const novoLink = document.getElementById('youtubeLink').value;
-            if (!novoLink) return alert('Insira um link válido!');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const link = linkInput.value;
 
-            const dados = new FormData();
-            dados.append('link', novoLink);
+            // Adiciona o link à lista de links na página
+            const listItem = document.createElement('li');
+            listItem.textContent = link;
+            linksList.appendChild(listItem);
 
-            await fetch('https://api.github.com/repos/ytinscritos/inscritoseview/actions/workflows/adicionar-link.yml/dispatches', {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'token SEU_GITHUB_TOKEN',
-                    'Accept': 'application/vnd.github.v3+json'
-                },
-                body: JSON.stringify({ ref: 'main', inputs: { link: novoLink } })
-            });
-
-            alert('Link enviado para salvar! Pode levar alguns minutos para aparecer.');
-        }
-
-        carregarLinks();
+            // Limpa o campo de entrada
+            linkInput.value = '';
+        });
     </script>
 </body>
 </html>
