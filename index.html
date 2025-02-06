@@ -14,38 +14,71 @@
             messagingSenderId: "1020519599238",
             appId: "1:1020519599238:web:8d04c61e7c50bc5055d507",
             measurementId: "G-C1L10R7BL1"
+    
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Links</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+      // Sua configuração do Firebase aqui
+apiKey: "AIzaSyBQWcrRHJp8WkqcJYKOLwdccG1h-hympfw",
+            authDomain: "ytinscritos-b8687.firebaseapp.com",
+            projectId: "ytinscritos-b8687",
+            storageBucket: "ytinscritos-b8687.firebasestorage.app",
+            messagingSenderId: "1020519599238",
+            appId: "1:1020519599238:web:8d04c61e7c50bc5055d507",
+            measurementId: "G-C1L10R7BL1"
     };
     firebase.initializeApp(firebaseConfig);
-
-    // Get a reference to the Firestore database
     const db = firebase.firestore();
-
-    // Get a reference to the youtubeLinks collection
     const youtubeLinksRef = db.collection('youtubeLinks');
 
-    // Function to display YouTube links
+    // Função para adicionar um novo link ao Firestore
+    function addLink() {
+      const linkInput = document.getElementById('youtubeLink');
+      const link = linkInput.value.trim();
+      
+      if (link) {
+        youtubeLinksRef.add({ link })
+          .then(() => {
+            linkInput.value = ''; // Limpa o campo de entrada
+            displayLinks(); // Atualiza a lista de links
+          })
+          .catch(error => console.error('Erro ao adicionar link:', error));
+      }
+    }
+
+    // Função para exibir os links do Firestore
     function displayLinks() {
       const linksContainer = document.getElementById('links');
-      linksContainer.innerHTML = ''; // Clear previous links
+      linksContainer.innerHTML = '';
 
-      youtubeLinksRef.get().then((snapshot) => {
-        snapshot.forEach((doc) => {
+      youtubeLinksRef.get().then(snapshot => {
+        snapshot.forEach(doc => {
           const link = doc.data().link;
           const linkElement = document.createElement('a');
           linkElement.href = link;
           linkElement.textContent = link;
+          linkElement.target = '_blank';
           linksContainer.appendChild(linkElement);
+          linksContainer.appendChild(document.createElement('br'));
         });
       });
     }
 
-    // Call the displayLinks function on page load
     window.onload = displayLinks;
   </script>
 </head>
 <body>
   <h1>YouTube Links</h1>
+  <input type="text" id="youtubeLink" placeholder="Cole o link do YouTube aqui">
+  <button onclick="addLink()">Adicionar Link</button>
   <div id="links"></div>
 </body>
 </html>
-
