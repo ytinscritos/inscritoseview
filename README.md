@@ -1,4 +1,4 @@
-Understanding Personal Injury: A Complete Guide
+Understanding <a href="https://www.cursoslegaislegais.blogspot.com">Personal Injury</a>: A Complete Guide
 Introduction
 
 Personal injury is one of the most common and consequential areas of civil law. It covers situations where a person suffers physical, emotional, or psychological harm because of another party's careless, reckless, or intentional actions. Every year, millions of people around the world are injured in car accidents, slip-and-fall incidents, workplace mishaps, medical procedures gone wrong, and countless other circumstances that could have been prevented. Understanding how personal injury law works — what it covers, how claims are built, and what compensation looks like — is essential not only for victims seeking justice but also for anyone who wants to understand their rights and responsibilities in everyday life.
